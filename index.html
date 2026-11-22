@@ -20,7 +20,7 @@ body {
 }
 
 header {
-    background: #234b3b;
+    background: #426b4e;
     color: white;
     padding: 20px;
 }
@@ -54,29 +54,29 @@ svg {
 }
 
 .board-frame {
-    fill: #234b3b;
-    stroke: #17372b;
+    fill: #426b4e;
+    stroke: #2c4b35;
     stroke-width: 8;
 }
 
 .board-field {
-    fill: #b9cbb5;
+    fill: #a3b59a;
 }
 
 .board-bar {
-    fill: #193b2d;
+    fill: #426b4e;
 }
 
 .point-orange {
-    fill: #df9867;
+    fill: #e89a61;
 }
 
 .point-purple {
-    fill: #a58ac4;
+    fill: #a78bd2;
 }
 
 .point-number {
-    fill: #f2c88b;
+    fill: #f2d29b;
     font-family: Georgia, serif;
     font-size: 30px;
     font-weight: bold;
@@ -98,12 +98,24 @@ svg {
     stroke: #573078;
 }
 
+.checker-count {
+    fill: white;
+    font-family: Arial, sans-serif;
+    font-size: 24px;
+    font-weight: bold;
+    text-anchor: middle;
+    dominant-baseline: middle;
+    paint-order: stroke;
+    stroke: #243127;
+    stroke-width: 3;
+}
+
 button {
-    margin-top: 22px;
+    margin: 12px 6px;
     background: #75469a;
     color: white;
     border: none;
-    padding: 14px 28px;
+    padding: 14px 24px;
     border-radius: 10px;
     font-size: 17px;
     cursor: pointer;
@@ -111,6 +123,12 @@ button {
 
 button:hover {
     background: #593477;
+}
+
+.info {
+    margin-top: 12px;
+    color: #426b4e;
+    font-size: 15px;
 }
 </style>
 </head>
@@ -132,10 +150,8 @@ button:hover {
     viewBox="0 0 1100 1000"
     xmlns="http://www.w3.org/2000/svg"
     role="img"
-    aria-label="Backgammonbräde med tio testbrickor"
+    aria-label="Backgammonbräde med dynamiska spelbrickor"
 >
-
-<!-- FÄRGER OCH EFFEKTER -->
 
 <defs>
 
@@ -153,9 +169,11 @@ button:hover {
         <stop offset="100%" stop-color="#48246f"/>
     </radialGradient>
 
-    <filter id="checkerShadow"
-            x="-20%" y="-20%"
-            width="140%" height="140%">
+    <filter
+        id="checkerShadow"
+        x="-20%" y="-20%"
+        width="140%" height="140%"
+    >
         <feDropShadow
             dx="1"
             dy="3"
@@ -215,11 +233,21 @@ button:hover {
     class="board-bar"
 />
 
-<!-- TESTBRICKOR -->
+<!-- SPELBRICKOR -->
 
 <g id="checkers"></g>
 
 </svg>
+
+<div>
+    <button id="positionButton">
+        Visa testposition 2
+    </button>
+</div>
+
+<p class="info" id="positionInfo">
+    Testposition 1 – 30 brickor
+</p>
 
 <button onclick="alert('Bertil gör sig redo!')">
     Starta träning
@@ -231,8 +259,10 @@ button:hover {
 <script>
 
 // =====================================
-// BRÄDETS GEOMETRI
+// GRUNDINSTÄLLNINGAR
 // =====================================
+
+const SVG_NS = "http://www.w3.org/2000/svg";
 
 const points = document.getElementById("points");
 const checkers = document.getElementById("checkers");
@@ -242,16 +272,17 @@ const rightStart = 570;
 
 const pointWidth = 485 / 6;
 
-// Exakt 10,5 brickdiametrar
 const boardDepth = pointWidth * 10.5;
-
 const pointHeight = boardDepth * 0.46;
 
 const topY = 75;
 const bottomY = topY + boardDepth;
 
+const checkerDiameter = pointWidth;
+const checkerRadius = checkerDiameter / 2;
+
 // =====================================
-// NUMRERING
+// BRÄDETS NUMRERING
 // =====================================
 
 const topNumbers = [
@@ -265,7 +296,25 @@ const bottomNumbers = [
 ];
 
 // =====================================
-// SKAPA SPJUT
+// HJÄLPFUNKTION FÖR SVG
+// =====================================
+
+function svgElement(type, attributes = {}) {
+
+    const element = document.createElementNS(
+        SVG_NS,
+        type
+    );
+
+    for (const [key, value] of Object.entries(attributes)) {
+        element.setAttribute(key, value);
+    }
+
+    return element;
+}
+
+// =====================================
+// SKAPA SPJUT OCH NUMRERING
 // =====================================
 
 function addPoint(number, row, index) {
@@ -276,11 +325,6 @@ function addPoint(number, row, index) {
 
     const isTop = row === "top";
 
-    const triangle = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "polygon"
-    );
-
     const coordinates = isTop
         ? `${x},${topY}
            ${x + pointWidth},${topY}
@@ -290,39 +334,25 @@ function addPoint(number, row, index) {
            ${x},${bottomY}
            ${x + pointWidth},${bottomY}`;
 
-    triangle.setAttribute("points", coordinates);
-
-    triangle.setAttribute(
-        "class",
-        index % 2 === 0
+    const triangle = svgElement("polygon", {
+        points: coordinates,
+        class: index % 2 === 0
             ? "point-orange"
             : "point-purple"
-    );
+    });
 
     points.appendChild(triangle);
 
-    // Nummer på ramen
-
-    const label = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "text"
-    );
-
-    label.setAttribute("x", x + pointWidth / 2);
-
-    label.setAttribute(
-        "y",
-        isTop ? 48 : bottomY + 27
-    );
-
-    label.setAttribute("class", "point-number");
+    const label = svgElement("text", {
+        x: x + pointWidth / 2,
+        y: isTop ? 48 : bottomY + 27,
+        class: "point-number"
+    });
 
     label.textContent = number;
 
     points.appendChild(label);
 }
-
-// Rita samtliga 24 spjut
 
 topNumbers.forEach(
     (number, index) => addPoint(number, "top", index)
@@ -333,73 +363,275 @@ bottomNumbers.forEach(
 );
 
 // =====================================
-// SKAPA SPELBRICKOR
+// ÖVERSÄTT PUNKTNUMMER TILL KOORDINAT
 // =====================================
 
-// Brickans diameter är exakt lika
-// stor som spjutets bredd vid roten.
+function getPointPosition(pointNumber) {
 
-const checkerDiameter = pointWidth;
-const checkerRadius = checkerDiameter / 2;
+    let index;
+    let isTop;
 
-// Vi använder första spjutet till vänster
-// för att kontrollera proportionerna.
+    if (pointNumber >= 13 && pointNumber <= 24) {
 
-const checkerX = leftStart + pointWidth / 2;
+        index = pointNumber - 13;
+        isTop = true;
 
-function addChecker(x, y, color) {
+    } else if (pointNumber >= 1 && pointNumber <= 12) {
 
-    const circle = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "circle"
-    );
+        index = 12 - pointNumber;
+        isTop = false;
 
-    circle.setAttribute("cx", x);
-    circle.setAttribute("cy", y);
-    circle.setAttribute("r", checkerRadius);
+    } else {
+        throw new Error("Ogiltigt punktnummer");
+    }
 
-    circle.setAttribute(
-        "class",
-        color === "orange"
+    const x = index < 6
+        ? leftStart + index * pointWidth
+        : rightStart + (index - 6) * pointWidth;
+
+    return {
+        x: x + pointWidth / 2,
+        isTop
+    };
+}
+
+// =====================================
+// RITA EN SPELBRICKA
+// =====================================
+
+function drawChecker(x, y, color) {
+
+    const circle = svgElement("circle", {
+        cx: x,
+        cy: y,
+        r: checkerRadius,
+        class: color === "orange"
             ? "checker checker-orange"
-            : "checker checker-purple"
-    );
-
-    circle.setAttribute(
-        "filter",
-        "url(#checkerShadow)"
-    );
+            : "checker checker-purple",
+        filter: "url(#checkerShadow)"
+    });
 
     checkers.appendChild(circle);
 }
 
 // =====================================
-// FEM ORANGEA FRÅN ÖVERKANTEN
+// RITA EN STAPEL
 // =====================================
 
-for (let i = 0; i < 5; i++) {
+function drawStack(pointNumber, color, count) {
 
-    const y =
-        topY +
-        checkerRadius +
-        i * checkerDiameter;
+    const position = getPointPosition(pointNumber);
 
-    addChecker(checkerX, y, "orange");
+    // Maximalt fem synliga brickor.
+    // Fler än fem visas med en siffra.
+
+    const visibleCount = Math.min(count, 5);
+
+    for (let i = 0; i < visibleCount; i++) {
+
+        const y = position.isTop
+            ? topY + checkerRadius + i * checkerDiameter
+            : bottomY - checkerRadius - i * checkerDiameter;
+
+        drawChecker(position.x, y, color);
+    }
+
+    if (count > 5) {
+
+        const labelY = position.isTop
+            ? topY + checkerRadius +
+              (visibleCount - 1) * checkerDiameter
+            : bottomY - checkerRadius -
+              (visibleCount - 1) * checkerDiameter;
+
+        const label = svgElement("text", {
+            x: position.x,
+            y: labelY,
+            class: "checker-count"
+        });
+
+        label.textContent = count;
+
+        checkers.appendChild(label);
+    }
 }
 
 // =====================================
-// FEM LILA FRÅN NEDERKANTEN
+// RITA BRICKOR PÅ BAREN
 // =====================================
 
-for (let i = 0; i < 5; i++) {
+function drawBar(color, count) {
 
-    const y =
-        bottomY -
-        checkerRadius -
-        i * checkerDiameter;
+    if (count === 0) return;
 
-    addChecker(checkerX, y, "purple");
+    const x = 550;
+
+    const visibleCount = Math.min(count, 3);
+
+    for (let i = 0; i < visibleCount; i++) {
+
+        const y = color === "orange"
+            ? topY + checkerRadius + i * checkerDiameter
+            : bottomY - checkerRadius - i * checkerDiameter;
+
+        // Brickorna på baren är mindre
+        // för att rymmas på mittbaren.
+
+        const circle = svgElement("circle", {
+            cx: x,
+            cy: y,
+            r: 18,
+            class: color === "orange"
+                ? "checker checker-orange"
+                : "checker checker-purple",
+            filter: "url(#checkerShadow)"
+        });
+
+        checkers.appendChild(circle);
+    }
+
+    if (count > 3) {
+
+        const label = svgElement("text", {
+            x: x,
+            y: color === "orange" ? 300 : 700,
+            class: "checker-count"
+        });
+
+        label.textContent = count;
+
+        checkers.appendChild(label);
+    }
 }
+
+// =====================================
+// TESTPOSITIONER
+// =====================================
+
+// Varje position innehåller exakt
+// 15 orangea och 15 lila brickor.
+
+const testPosition1 = {
+
+    orange: {
+        24: 2,
+        18: 3,
+        13: 6,
+        8: 3
+    },
+
+    purple: {
+        1: 2,
+        6: 4,
+        12: 5,
+        19: 3
+    },
+
+    bar: {
+        orange: 1,
+        purple: 1
+    }
+};
+
+const testPosition2 = {
+
+    orange: {
+        23: 3,
+        17: 2,
+        11: 7,
+        5: 2
+    },
+
+    purple: {
+        2: 2,
+        7: 6,
+        14: 4,
+        20: 2
+    },
+
+    bar: {
+        orange: 1,
+        purple: 1
+    }
+};
+
+// =====================================
+// RITA HELA POSITIONEN
+// =====================================
+
+function renderPosition(position) {
+
+    checkers.innerHTML = "";
+
+    for (const [point, count] of Object.entries(position.orange)) {
+
+        drawStack(
+            Number(point),
+            "orange",
+            count
+        );
+    }
+
+    for (const [point, count] of Object.entries(position.purple)) {
+
+        drawStack(
+            Number(point),
+            "purple",
+            count
+        );
+    }
+
+    drawBar("orange", position.bar.orange);
+    drawBar("purple", position.bar.purple);
+}
+
+// =====================================
+// VÄXLA MELLAN POSITIONER
+// =====================================
+
+let currentPosition = 1;
+
+const positionButton = document.getElementById(
+    "positionButton"
+);
+
+const positionInfo = document.getElementById(
+    "positionInfo"
+);
+
+positionButton.addEventListener("click", () => {
+
+    if (currentPosition === 1) {
+
+        currentPosition = 2;
+
+        renderPosition(testPosition2);
+
+        positionButton.textContent =
+            "Visa testposition 1";
+
+        positionInfo.textContent =
+            "Testposition 2 – 30 brickor";
+
+    } else {
+
+        currentPosition = 1;
+
+        renderPosition(testPosition1);
+
+        positionButton.textContent =
+            "Visa testposition 2";
+
+        positionInfo.textContent =
+            "Testposition 1 – 30 brickor";
+    }
+});
+
+// =====================================
+// STARTA MED TESTPOSITION 1
+// =====================================
+
+renderPosition(testPosition1);
 
 </script>
 
