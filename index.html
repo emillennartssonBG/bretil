@@ -75,9 +75,9 @@ svg {
 }
 
 .point-number {
-  fill: #e5d6a8;
+  fill: #f2c88b;
   font-family: Georgia, serif;
-  font-size: 19px;
+  font-size: 30px;
   font-weight: bold;
   text-anchor: middle;
   dominant-baseline: middle;
@@ -92,6 +92,10 @@ button {
   border-radius: 10px;
   font-size: 17px;
   cursor: pointer;
+}
+
+button:hover {
+  background: #593477;
 }
 </style>
 </head>
@@ -114,19 +118,31 @@ button {
      role="img"
      aria-label="Tomt backgammonbräde med 24 numrerade spjut">
 
+  <!-- Yttre mörkgröna ramen -->
   <rect x="10" y="10"
         width="1080" height="660"
         rx="18"
         class="board-frame"/>
 
-  <rect x="35" y="35"
-        width="1030" height="610"
+  <!-- Guldfärgad dekorlinje -->
+  <rect x="20" y="20"
+        width="1060" height="640"
+        rx="14"
+        fill="none"
+        stroke="#d9b778"
+        stroke-width="3"/>
+
+  <!-- Salviagrön spelplan -->
+  <rect x="45" y="75"
+        width="1010" height="530"
         class="board-field"/>
 
+  <!-- Spjuten skapas med JavaScript -->
   <g id="points"></g>
 
-  <rect x="530" y="35"
-        width="40" height="610"
+  <!-- Mörkgrön bar -->
+  <rect x="530" y="75"
+        width="40" height="530"
         class="board-bar"/>
 
 </svg>
@@ -142,9 +158,12 @@ button {
 const points = document.getElementById("points");
 
 const leftStart = 45;
-const rightStart = 580;
-const pointWidth = 78;
-const pointHeight = 265;
+const rightStart = 570;
+
+// Varje halva har sex spjut.
+// Spjuten fyller respektive halva utan glipor.
+const pointWidth = 485 / 6;
+const pointHeight = 230;
 
 const topNumbers = [
   13, 14, 15, 16, 17, 18,
@@ -170,8 +189,8 @@ function addPoint(number, row, index) {
   );
 
   const coordinates = isTop
-    ? `${x},45 ${x + pointWidth},45 ${x + pointWidth / 2},${45 + pointHeight}`
-    : `${x + pointWidth / 2},${635 - pointHeight} ${x},635 ${x + pointWidth},635`;
+    ? `${x},75 ${x + pointWidth},75 ${x + pointWidth / 2},${75 + pointHeight}`
+    : `${x + pointWidth / 2},${605 - pointHeight} ${x},605 ${x + pointWidth},605`;
 
   triangle.setAttribute("points", coordinates);
 
@@ -182,13 +201,14 @@ function addPoint(number, row, index) {
 
   points.appendChild(triangle);
 
+  // Guldfärgade siffror på ramen
   const label = document.createElementNS(
     "http://www.w3.org/2000/svg",
     "text"
   );
 
   label.setAttribute("x", x + pointWidth / 2);
-  label.setAttribute("y", isTop ? 60 : 620);
+  label.setAttribute("y", isTop ? 48 : 632);
   label.setAttribute("class", "point-number");
 
   label.textContent = number;
