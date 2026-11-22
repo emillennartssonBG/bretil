@@ -111,13 +111,13 @@ svg {
 }
 
 button {
-    margin: 12px 6px;
+    margin: 8px 5px;
     background: #75469a;
     color: white;
     border: none;
-    padding: 14px 24px;
+    padding: 13px 20px;
     border-radius: 10px;
-    font-size: 17px;
+    font-size: 16px;
     cursor: pointer;
 }
 
@@ -125,10 +125,98 @@ button:hover {
     background: #593477;
 }
 
-.info {
-    margin-top: 12px;
-    color: #426b4e;
+button:disabled {
+    background: #a9a9a9;
+    cursor: not-allowed;
+}
+
+.file-button {
+    display: inline-block;
+    margin: 10px;
+    padding: 14px 24px;
+    background: #426b4e;
+    color: white;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.file-button:hover {
+    background: #31553c;
+}
+
+#fileInput {
+    display: none;
+}
+
+.panel {
+    margin: 18px auto;
+    padding: 15px;
+    background: #e5ece1;
+    border-radius: 12px;
+    max-width: 900px;
+}
+
+.status {
+    margin: 12px auto;
+    padding: 12px;
+    border-radius: 8px;
+    background: #e1ebdd;
+    max-width: 900px;
+    line-height: 1.5;
+}
+
+.status.error {
+    background: #f8d8d5;
+    color: #842e25;
+}
+
+.status.warning {
+    background: #fff0c7;
+    color: #76551c;
+}
+
+.match-info {
+    font-size: 16px;
+    line-height: 1.7;
+}
+
+.move-info {
+    font-size: 20px;
+    font-weight: bold;
+    margin: 12px;
+}
+
+.small {
+    font-size: 14px;
+    opacity: 0.85;
+}
+
+select {
+    padding: 10px;
+    border: 1px solid #9aaf96;
+    border-radius: 8px;
     font-size: 15px;
+    max-width: 100%;
+}
+
+#board {
+    margin-top: 15px;
+}
+
+@media (max-width: 600px) {
+    h1 {
+        font-size: 30px;
+    }
+
+    .card {
+        padding: 12px;
+    }
+
+    button {
+        padding: 11px 13px;
+        font-size: 14px;
+    }
 }
 </style>
 </head>
@@ -143,14 +231,50 @@ button:hover {
 <main>
 <div class="card">
 
-<h2>Vårt backgammonbräde</h2>
+<h2>SGF-test – Matchläsning</h2>
+
+<p>
+    Nu ska vi se om Bertil kan tolka en riktig backgammonmatch.
+</p>
+
+<div class="panel">
+
+    <label class="file-button" for="fileInput">
+        📂 Välj SGF-fil
+    </label>
+
+    <input
+        type="file"
+        id="fileInput"
+        accept=".sgf,.txt"
+    >
+
+    <div id="fileName" class="small">
+        Ingen fil vald
+    </div>
+
+    <div id="gameSelectorArea" style="display:none; margin-top:15px;">
+        <label for="gameSelector">Välj parti i matchen:</label>
+        <br><br>
+        <select id="gameSelector"></select>
+    </div>
+
+</div>
+
+<div id="status" class="status">
+    Välj en analyserad SGF-fil för att börja.
+</div>
+
+<div id="matchInfo" class="match-info">
+    Ingen match inläst.
+</div>
 
 <svg
     id="board"
     viewBox="0 0 1141 1000"
     xmlns="http://www.w3.org/2000/svg"
     role="img"
-    aria-label="Backgammonbräde med dynamiska spelbrickor"
+    aria-label="Backgammonbräde"
 >
 
 <defs>
@@ -171,8 +295,10 @@ button:hover {
 
     <filter
         id="checkerShadow"
-        x="-20%" y="-20%"
-        width="140%" height="140%"
+        x="-20%"
+        y="-20%"
+        width="140%"
+        height="140%"
     >
         <feDropShadow
             dx="1"
@@ -185,8 +311,6 @@ button:hover {
 
 </defs>
 
-<!-- RAM -->
-
 <rect
     x="10"
     y="10"
@@ -195,8 +319,6 @@ button:hover {
     rx="18"
     class="board-frame"
 />
-
-<!-- DEKORLINJE -->
 
 <rect
     x="20"
@@ -209,8 +331,6 @@ button:hover {
     stroke-width="3"
 />
 
-<!-- SPELPLAN -->
-
 <rect
     x="45"
     y="75"
@@ -219,11 +339,7 @@ button:hover {
     class="board-field"
 />
 
-<!-- SPJUT OCH NUMRERING -->
-
 <g id="points"></g>
-
-<!-- MITTBAREN -->
 
 <rect
     x="530"
@@ -233,34 +349,58 @@ button:hover {
     class="board-bar"
 />
 
-<!-- SPELBRICKOR -->
-
 <g id="checkers"></g>
 
 </svg>
 
-<div>
-    <button id="positionButton">
-        Visa testposition 2
+<div class="panel">
+
+    <div id="moveInfo" class="move-info">
+        Startposition
+    </div>
+
+    <button id="firstButton" disabled>
+        ⏮ Start
     </button>
+
+    <button id="previousButton" disabled>
+        ◀ Föregående
+    </button>
+
+    <button id="nextButton" disabled>
+        Nästa ▶
+    </button>
+
+    <button id="lastButton" disabled>
+        Slut ⏭
+    </button>
+
+    <div id="positionCounter" class="small">
+        Position 0 av 0
+    </div>
+
 </div>
 
-<p class="info" id="positionInfo">
-    Testposition 1 – 30 brickor
+<p class="small">
+    Orange = vit spelare i SGF-filen.
+    Lila = svart spelare i SGF-filen.
 </p>
 
-<button onclick="alert('Bertil gör sig redo!')">
-    Starta träning
-</button>
+<p class="small">
+    Testversion: matchläsning och positionskontroll.
+    Ingen automatisk quizgenerering ännu.
+</p>
 
 </div>
 </main>
 
 <script>
 
-// =====================================
-// GRUNDINSTÄLLNINGAR
-// =====================================
+"use strict";
+
+/* ==========================================
+   BERTIL – SGF TESTVERSION
+   ========================================== */
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 
@@ -268,10 +408,7 @@ const points = document.getElementById("points");
 const checkers = document.getElementById("checkers");
 
 const leftStart = 45;
-
-// Höger halva flyttas 40,833 enheter åt höger.
 const rightStart = 610.833333;
-
 const pointWidth = 485 / 6;
 
 const boardDepth = pointWidth * 10.5;
@@ -283,23 +420,19 @@ const bottomY = topY + boardDepth;
 const checkerDiameter = pointWidth;
 const checkerRadius = checkerDiameter / 2;
 
-// =====================================
-// BRÄDETS NUMRERING
-// =====================================
-
 const topNumbers = [
     13,14,15,16,17,18,
     19,20,21,22,23,24
 ];
 
 const bottomNumbers = [
-    12,11,10,9,8,7,6,
-    5,4,3,2,1
+    12,11,10,9,8,7,
+    6,5,4,3,2,1
 ];
 
-// =====================================
-// HJÄLPFUNKTION FÖR SVG
-// =====================================
+/* ==========================================
+   SVG
+   ========================================== */
 
 function svgElement(type, attributes = {}) {
 
@@ -315,10 +448,6 @@ function svgElement(type, attributes = {}) {
     return element;
 }
 
-// =====================================
-// SKAPA SPJUT OCH NUMRERING
-// =====================================
-
 function addPoint(number, row, index) {
 
     const x = index < 6
@@ -328,13 +457,8 @@ function addPoint(number, row, index) {
     const isTop = row === "top";
 
     const coordinates = isTop
-        ? `${x},${topY}
-           ${x + pointWidth},${topY}
-           ${x + pointWidth / 2},${topY + pointHeight}`
-
-        : `${x + pointWidth / 2},${bottomY - pointHeight}
-           ${x},${bottomY}
-           ${x + pointWidth},${bottomY}`;
+        ? `${x},${topY} ${x + pointWidth},${topY} ${x + pointWidth / 2},${topY + pointHeight}`
+        : `${x + pointWidth / 2},${bottomY - pointHeight} ${x},${bottomY} ${x + pointWidth},${bottomY}`;
 
     const triangle = svgElement("polygon", {
         points: coordinates,
@@ -356,17 +480,17 @@ function addPoint(number, row, index) {
     points.appendChild(label);
 }
 
-topNumbers.forEach(
-    (number, index) => addPoint(number, "top", index)
-);
+topNumbers.forEach((number, index) => {
+    addPoint(number, "top", index);
+});
 
-bottomNumbers.forEach(
-    (number, index) => addPoint(number, "bottom", index)
-);
+bottomNumbers.forEach((number, index) => {
+    addPoint(number, "bottom", index);
+});
 
-// =====================================
-// ÖVERSÄTT PUNKTNUMMER TILL KOORDINAT
-// =====================================
+/* ==========================================
+   BRICKOR
+   ========================================== */
 
 function getPointPosition(pointNumber) {
 
@@ -384,7 +508,10 @@ function getPointPosition(pointNumber) {
         isTop = false;
 
     } else {
-        throw new Error("Ogiltigt punktnummer");
+
+        throw new Error(
+            "Ogiltigt punktnummer: " + pointNumber
+        );
     }
 
     const x = index < 6
@@ -396,10 +523,6 @@ function getPointPosition(pointNumber) {
         isTop
     };
 }
-
-// =====================================
-// RITA EN SPELBRICKA
-// =====================================
 
 function drawChecker(x, y, color) {
 
@@ -416,11 +539,9 @@ function drawChecker(x, y, color) {
     checkers.appendChild(circle);
 }
 
-// =====================================
-// RITA EN STAPEL
-// =====================================
-
 function drawStack(pointNumber, color, count) {
+
+    if (count <= 0) return;
 
     const position = getPointPosition(pointNumber);
 
@@ -438,10 +559,8 @@ function drawStack(pointNumber, color, count) {
     if (count > 5) {
 
         const labelY = position.isTop
-            ? topY + checkerRadius +
-              (visibleCount - 1) * checkerDiameter
-            : bottomY - checkerRadius -
-              (visibleCount - 1) * checkerDiameter;
+            ? topY + checkerRadius + 4 * checkerDiameter
+            : bottomY - checkerRadius - 4 * checkerDiameter;
 
         const label = svgElement("text", {
             x: position.x,
@@ -455,15 +574,10 @@ function drawStack(pointNumber, color, count) {
     }
 }
 
-// =====================================
-// RITA BRICKOR PÅ BAREN
-// =====================================
-
 function drawBar(color, count) {
 
-    if (count === 0) return;
+    if (count <= 0) return;
 
-    // Mittpunkt på den nya, bredare baren.
     const x = 530 + checkerRadius;
 
     const visibleCount = Math.min(count, 5);
@@ -480,13 +594,11 @@ function drawBar(color, count) {
     if (count > 5) {
 
         const labelY = color === "orange"
-            ? topY + checkerRadius +
-              (visibleCount - 1) * checkerDiameter
-            : bottomY - checkerRadius -
-              (visibleCount - 1) * checkerDiameter;
+            ? topY + checkerRadius + 4 * checkerDiameter
+            : bottomY - checkerRadius - 4 * checkerDiameter;
 
         const label = svgElement("text", {
-            x: x,
+            x,
             y: labelY,
             class: "checker-count"
         });
@@ -497,63 +609,88 @@ function drawBar(color, count) {
     }
 }
 
-// =====================================
-// TESTPOSITIONER
-// =====================================
+/* ==========================================
+   SPELPOSITION
+   ========================================== */
 
-const testPosition1 = {
+function createStartingPosition() {
 
-    orange: {
-        24: 2,
-        18: 3,
-        13: 6,
-        8: 3
-    },
+    return {
+        W: {
+            24: 2,
+            13: 5,
+            8: 3,
+            6: 5
+        },
 
-    purple: {
-        1: 2,
-        6: 4,
-        12: 5,
-        19: 3
-    },
+        B: {
+            1: 2,
+            12: 5,
+            17: 3,
+            19: 5
+        },
 
-    bar: {
-        orange: 1,
-        purple: 1
+        bar: {
+            W: 0,
+            B: 0
+        },
+
+        off: {
+            W: 0,
+            B: 0
+        }
+    };
+}
+
+function clonePosition(position) {
+
+    return JSON.parse(JSON.stringify(position));
+}
+
+function checkerTotal(position, player) {
+
+    const onBoard = Object.values(
+        position[player]
+    ).reduce((sum, count) => sum + count, 0);
+
+    return onBoard
+        + position.bar[player]
+        + position.off[player];
+}
+
+function validatePosition(position) {
+
+    for (const player of ["W", "B"]) {
+
+        const total = checkerTotal(position, player);
+
+        if (total !== 15) {
+
+            throw new Error(
+                `Fel antal brickor för ${player}: ${total} i stället för 15.`
+            );
+        }
     }
-};
 
-const testPosition2 = {
+    for (let point = 1; point <= 24; point++) {
 
-    orange: {
-        23: 3,
-        17: 2,
-        11: 7,
-        5: 2
-    },
+        const white = position.W[point] || 0;
+        const black = position.B[point] || 0;
 
-    purple: {
-        2: 2,
-        7: 6,
-        14: 4,
-        20: 2
-    },
+        if (white > 0 && black > 0) {
 
-    bar: {
-        orange: 1,
-        purple: 1
+            throw new Error(
+                `Båda spelarna har brickor på punkt ${point}.`
+            );
+        }
     }
-};
-
-// =====================================
-// RITA HELA POSITIONEN
-// =====================================
+}
 
 function renderPosition(position) {
 
     checkers.innerHTML = "";
 
-    for (const [point, count] of Object.entries(position.orange)) {
+    for (const [point, count] of Object.entries(position.W)) {
 
         drawStack(
             Number(point),
@@ -562,7 +699,7 @@ function renderPosition(position) {
         );
     }
 
-    for (const [point, count] of Object.entries(position.purple)) {
+    for (const [point, count] of Object.entries(position.B)) {
 
         drawStack(
             Number(point),
@@ -571,57 +708,706 @@ function renderPosition(position) {
         );
     }
 
-    drawBar("orange", position.bar.orange);
-    drawBar("purple", position.bar.purple);
+    drawBar("orange", position.bar.W);
+    drawBar("purple", position.bar.B);
 }
 
-// =====================================
-// VÄXLA MELLAN POSITIONER
-// =====================================
+/* ==========================================
+   SGF-TOLKNING
+   ========================================== */
 
-let currentPosition = 1;
+/*
+   GNU Backgammon använder bokstäver
+   för att beskriva förflyttningar.
 
-const positionButton = document.getElementById(
-    "positionButton"
-);
+   a = punkt 1
+   b = punkt 2
+   ...
+   x = punkt 24
 
-const positionInfo = document.getElementById(
-    "positionInfo"
-);
+   y = bar
+   z = avplockning
 
-positionButton.addEventListener("click", () => {
+   Vit rör sig mot lägre punktnummer.
+   Svart rör sig mot högre punktnummer.
+*/
 
-    if (currentPosition === 1) {
+function decodeLocation(letter) {
 
-        currentPosition = 2;
+    if (letter === "y") return "bar";
+    if (letter === "z") return "off";
 
-        renderPosition(testPosition2);
+    const code = letter.charCodeAt(0);
 
-        positionButton.textContent =
-            "Visa testposition 1";
+    if (code >= 97 && code <= 120) {
+        return code - 96;
+    }
 
-        positionInfo.textContent =
-            "Testposition 2 – 30 brickor";
+    throw new Error(
+        "Okänd SGF-position: " + letter
+    );
+}
+
+function decodeMove(encoded) {
+
+    if (!/^[a-z]+$/.test(encoded)) {
+
+        throw new Error(
+            "Ogiltig dragkod: " + encoded
+        );
+    }
+
+    if (encoded.length < 4 || encoded.length % 2 !== 0) {
+
+        throw new Error(
+            "Felaktig längd på dragkod: " + encoded
+        );
+    }
+
+    const dice = [
+        Number(encoded[0]),
+        Number(encoded[1])
+    ];
+
+    if (dice.some(die => die < 1 || die > 6)) {
+
+        throw new Error(
+            "Ogiltiga tärningar: " + encoded
+        );
+    }
+
+    const moveLetters = encoded.slice(2);
+
+    if (moveLetters.length % 2 !== 0) {
+
+        throw new Error(
+            "Ofullständig förflyttning: " + encoded
+        );
+    }
+
+    const moves = [];
+
+    for (let i = 0; i < moveLetters.length; i += 2) {
+
+        moves.push({
+            from: decodeLocation(moveLetters[i]),
+            to: decodeLocation(moveLetters[i + 1])
+        });
+    }
+
+    if (moves.length > 4) {
+
+        throw new Error(
+            "För många förflyttningar: " + encoded
+        );
+    }
+
+    return {
+        dice,
+        moves
+    };
+}
+
+/* ==========================================
+   UTFÖR DRAG
+   ========================================== */
+
+function applyMove(position, player, move) {
+
+    const opponent = player === "W" ? "B" : "W";
+
+    const from = move.from;
+    const to = move.to;
+
+    if (from === "off") {
+
+        throw new Error(
+            "En bricka kan inte flyttas från avplockningen."
+        );
+    }
+
+    if (to === "bar") {
+
+        throw new Error(
+            "En bricka kan inte flyttas till baren som vanligt drag."
+        );
+    }
+
+    // Ta bort brickan från ursprunget.
+
+    if (from === "bar") {
+
+        if (position.bar[player] <= 0) {
+
+            throw new Error(
+                `${player} försöker flytta från tom bar.`
+            );
+        }
+
+        position.bar[player]--;
 
     } else {
 
-        currentPosition = 1;
+        if ((position[player][from] || 0) <= 0) {
 
-        renderPosition(testPosition1);
+            throw new Error(
+                `${player} saknar bricka på punkt ${from}.`
+            );
+        }
 
-        positionButton.textContent =
-            "Visa testposition 2";
+        position[player][from]--;
 
-        positionInfo.textContent =
-            "Testposition 1 – 30 brickor";
+        if (position[player][from] === 0) {
+            delete position[player][from];
+        }
+    }
+
+    // Avplockning.
+
+    if (to === "off") {
+
+        position.off[player]++;
+        return;
+    }
+
+    // Kontrollera motståndarens brickor.
+
+    const opponentCount = position[opponent][to] || 0;
+
+    if (opponentCount >= 2) {
+
+        throw new Error(
+            `Blockerad punkt ${to}: motståndaren har ${opponentCount} brickor.`
+        );
+    }
+
+    // Slå motståndarens ensamma bricka.
+
+    if (opponentCount === 1) {
+
+        delete position[opponent][to];
+
+        position.bar[opponent]++;
+    }
+
+    // Placera den flyttade brickan.
+
+    position[player][to] =
+        (position[player][to] || 0) + 1;
+}
+
+function applyTurn(previousPosition, turn) {
+
+    const position = clonePosition(previousPosition);
+
+    for (const move of turn.moves) {
+
+        applyMove(position, turn.player, move);
+    }
+
+    validatePosition(position);
+
+    return position;
+}
+
+/* ==========================================
+   SGF-FILER OCH PARTIER
+   ========================================== */
+
+function readProperty(text, property) {
+
+    const regex = new RegExp(
+        "(?:^|\\])" + property + "\\[([^\\]]*)\\]"
+    );
+
+    const match = text.match(regex);
+
+    return match ? match[1] : "";
+}
+
+function splitGames(text) {
+
+    const starts = [];
+
+    const regex = /\(\s*;FF\[/g;
+
+    let match;
+
+    while ((match = regex.exec(text)) !== null) {
+
+        starts.push(match.index);
+    }
+
+    if (starts.length === 0) {
+
+        throw new Error(
+            "Hittar inga GNU Backgammon-partier i filen."
+        );
+    }
+
+    const games = [];
+
+    for (let i = 0; i < starts.length; i++) {
+
+        const start = starts[i];
+
+        const end = i + 1 < starts.length
+            ? starts[i + 1]
+            : text.length;
+
+        games.push(text.slice(start, end));
+    }
+
+    return games;
+}
+
+function parseGame(gameText, gameNumber) {
+
+    const headerEnd = gameText.search(/;[WB]\[/);
+
+    const header = headerEnd >= 0
+        ? gameText.slice(0, headerEnd)
+        : gameText;
+
+    const whiteName = readProperty(header, "PW") || "Vit";
+    const blackName = readProperty(header, "PB") || "Svart";
+
+    const date = readProperty(header, "DT");
+    const result = readProperty(header, "RE");
+
+    const rawTurns = [];
+
+    const moveRegex = /;([WB])\[([^\]]*)\]/g;
+
+    let match;
+
+    while ((match = moveRegex.exec(gameText)) !== null) {
+
+        const player = match[1];
+        const encoded = match[2];
+
+        // Dubblingsbeslut och andra händelser
+        // flyttar inte brickor.
+
+        if (
+            encoded === "double" ||
+            encoded === "take" ||
+            encoded === "drop" ||
+            encoded === "resign" ||
+            encoded === "accept" ||
+            encoded === "reject"
+        ) {
+
+            rawTurns.push({
+                player,
+                type: "event",
+                event: encoded,
+                encoded
+            });
+
+            continue;
+        }
+
+        const decoded = decodeMove(encoded);
+
+        rawTurns.push({
+            player,
+            type: "move",
+            encoded,
+            dice: decoded.dice,
+            moves: decoded.moves
+        });
+    }
+
+    const positions = [createStartingPosition()];
+
+    const turns = [];
+
+    let currentPosition = createStartingPosition();
+
+    for (let i = 0; i < rawTurns.length; i++) {
+
+        const turn = rawTurns[i];
+
+        try {
+
+            if (turn.type === "move") {
+
+                currentPosition = applyTurn(
+                    currentPosition,
+                    turn
+                );
+            }
+
+            positions.push(
+                clonePosition(currentPosition)
+            );
+
+            turns.push(turn);
+
+        } catch (error) {
+
+            return {
+                gameNumber,
+                whiteName,
+                blackName,
+                date,
+                result,
+                turns,
+                positions,
+                error:
+                    `Tolkningen stoppade vid händelse ${i + 1} ` +
+                    `(${turn.player}[${turn.encoded}]): ` +
+                    error.message
+            };
+        }
+    }
+
+    return {
+        gameNumber,
+        whiteName,
+        blackName,
+        date,
+        result,
+        turns,
+        positions,
+        error: null
+    };
+}
+
+/* ==========================================
+   GRÄNSSNITT
+   ========================================== */
+
+const fileInput = document.getElementById("fileInput");
+
+const fileName = document.getElementById("fileName");
+
+const statusElement = document.getElementById("status");
+
+const matchInfo = document.getElementById("matchInfo");
+
+const moveInfo = document.getElementById("moveInfo");
+
+const positionCounter = document.getElementById(
+    "positionCounter"
+);
+
+const gameSelectorArea = document.getElementById(
+    "gameSelectorArea"
+);
+
+const gameSelector = document.getElementById(
+    "gameSelector"
+);
+
+const firstButton = document.getElementById(
+    "firstButton"
+);
+
+const previousButton = document.getElementById(
+    "previousButton"
+);
+
+const nextButton = document.getElementById(
+    "nextButton"
+);
+
+const lastButton = document.getElementById(
+    "lastButton"
+);
+
+let loadedGames = [];
+let currentGame = null;
+let currentIndex = 0;
+
+function setStatus(message, type = "") {
+
+    statusElement.textContent = message;
+
+    statusElement.className = "status";
+
+    if (type) {
+        statusElement.classList.add(type);
+    }
+}
+
+function describeLocation(location) {
+
+    if (location === "bar") return "bar";
+    if (location === "off") return "av";
+
+    return String(location);
+}
+
+function describeTurn(turn) {
+
+    if (turn.type === "event") {
+
+        const eventNames = {
+            double: "Dubbling",
+            take: "Accepterad dubbling",
+            drop: "Avböjd dubbling",
+            resign: "Uppgivning",
+            accept: "Accepterat",
+            reject: "Avvisat"
+        };
+
+        return eventNames[turn.event] || turn.event;
+    }
+
+    const dice = turn.dice.join("–");
+
+    const moves = turn.moves.map(move => {
+
+        return (
+            describeLocation(move.from) +
+            "/" +
+            describeLocation(move.to)
+        );
+
+    }).join(", ");
+
+    return `${dice}: ${moves}`;
+}
+
+function updateNavigation() {
+
+    const hasGame = currentGame !== null;
+
+    const lastIndex = hasGame
+        ? currentGame.turns.length
+        : 0;
+
+    firstButton.disabled =
+        !hasGame || currentIndex === 0;
+
+    previousButton.disabled =
+        !hasGame || currentIndex === 0;
+
+    nextButton.disabled =
+        !hasGame || currentIndex >= lastIndex;
+
+    lastButton.disabled =
+        !hasGame || currentIndex >= lastIndex;
+}
+
+function showPosition(index) {
+
+    if (!currentGame) return;
+
+    if (
+        index < 0 ||
+        index >= currentGame.positions.length
+    ) {
+        return;
+    }
+
+    currentIndex = index;
+
+    const position = currentGame.positions[index];
+
+    renderPosition(position);
+
+    if (index === 0) {
+
+        moveInfo.textContent = "Startposition";
+
+    } else {
+
+        const turn = currentGame.turns[index - 1];
+
+        const playerName = turn.player === "W"
+            ? currentGame.whiteName
+            : currentGame.blackName;
+
+        moveInfo.textContent =
+            `${playerName}: ${describeTurn(turn)}`;
+    }
+
+    positionCounter.textContent =
+        `Händelse ${index} av ${currentGame.turns.length}`;
+
+    updateNavigation();
+}
+
+function selectGame(index) {
+
+    currentGame = loadedGames[index];
+
+    if (!currentGame) return;
+
+    matchInfo.innerHTML = "";
+
+    const heading = document.createElement("strong");
+
+    heading.textContent =
+        `${currentGame.whiteName} – ${currentGame.blackName}`;
+
+    matchInfo.appendChild(heading);
+
+    const details = document.createElement("div");
+
+    details.textContent =
+        `Parti ${index + 1} | ` +
+        `Datum: ${currentGame.date || "okänt"} | ` +
+        `Resultat: ${currentGame.result || "okänt"}`;
+
+    matchInfo.appendChild(details);
+
+    const offInfo = document.createElement("div");
+
+    offInfo.className = "small";
+
+    offInfo.textContent =
+        "Avplockade brickor räknas men visas ännu inte utanför brädet.";
+
+    matchInfo.appendChild(offInfo);
+
+    showPosition(0);
+
+    if (currentGame.error) {
+
+        setStatus(
+            currentGame.error +
+            " Du kan granska positionerna fram till felet.",
+            "warning"
+        );
+
+    } else {
+
+        setStatus(
+            `Parti ${index + 1} inläst. ` +
+            `${currentGame.turns.length} händelser tolkade. ` +
+            "Använd Nästa för att kontrollera positionerna."
+        );
+    }
+}
+
+function resetInterface() {
+
+    loadedGames = [];
+    currentGame = null;
+    currentIndex = 0;
+
+    gameSelectorArea.style.display = "none";
+    gameSelector.innerHTML = "";
+
+    matchInfo.textContent = "Ingen match inläst.";
+
+    moveInfo.textContent = "Startposition";
+
+    positionCounter.textContent = "Position 0 av 0";
+
+    renderPosition(createStartingPosition());
+
+    updateNavigation();
+}
+
+/* ==========================================
+   FILIMPORT
+   ========================================== */
+
+fileInput.addEventListener("change", async event => {
+
+    const file = event.target.files[0];
+
+    if (!file) return;
+
+    resetInterface();
+
+    fileName.textContent = file.name;
+
+    setStatus("Bertil läser filen...");
+
+    try {
+
+        const text = await file.text();
+
+        if (!text.includes("GM[6]")) {
+
+            throw new Error(
+                "Filen verkar inte innehålla backgammon-SGF."
+            );
+        }
+
+        const gameTexts = splitGames(text);
+
+        loadedGames = gameTexts.map((gameText, index) => {
+
+            return parseGame(gameText, index + 1);
+
+        });
+
+        gameSelector.innerHTML = "";
+
+        loadedGames.forEach((game, index) => {
+
+            const option = document.createElement("option");
+
+            option.value = index;
+
+            option.textContent =
+                `Parti ${index + 1}: ` +
+                `${game.whiteName} – ${game.blackName}`;
+
+            gameSelector.appendChild(option);
+        });
+
+        gameSelectorArea.style.display =
+            loadedGames.length > 1
+                ? "block"
+                : "none";
+
+        selectGame(0);
+
+    } catch (error) {
+
+        setStatus(
+            "Kunde inte läsa filen: " + error.message,
+            "error"
+        );
+
+        console.error(error);
     }
 });
 
-// =====================================
-// STARTA MED TESTPOSITION 1
-// =====================================
+gameSelector.addEventListener("change", event => {
 
-renderPosition(testPosition1);
+    selectGame(Number(event.target.value));
+});
+
+/* ==========================================
+   NAVIGERING
+   ========================================== */
+
+firstButton.addEventListener("click", () => {
+
+    showPosition(0);
+});
+
+previousButton.addEventListener("click", () => {
+
+    showPosition(currentIndex - 1);
+});
+
+nextButton.addEventListener("click", () => {
+
+    showPosition(currentIndex + 1);
+});
+
+lastButton.addEventListener("click", () => {
+
+    if (!currentGame) return;
+
+    showPosition(currentGame.turns.length);
+});
+
+/* ==========================================
+   START
+   ========================================== */
+
+resetInterface();
 
 </script>
 
