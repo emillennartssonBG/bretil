@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Bertil – Backgammonträning</title>
+<title>Bertil Prime – Backgammon Trainer</title>
 
 <style>
 *{box-sizing:border-box}
@@ -44,14 +44,44 @@ select{padding:10px;border:1px solid #9aaf96;border-radius:8px;font-size:15px;ma
  .card{padding:12px}
  button{padding:11px 13px;font-size:14px}
 }
+#quizGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px} #quizGrid figure{margin:0;padding:8px;background:#e5ece1;border-radius:10px} #quizGrid figure:first-child{grid-column:1/-1;width:50%;margin:auto} #quizGrid figcaption{font-weight:bold;padding:6px} @media(max-width:600px){#quizGrid{gap:6px} #quizGrid figure:first-child{width:85%}}
+[hidden]{display:none!important}.mode-training #analysisList,.mode-training #analysisDetail,.mode-training #replayArea,.mode-training #matchInfo,.mode-training #gameSelectorArea,.mode-training #status{display:none!important}.mode-analysis #quizPanel{display:none!important}.mode-training #analysisPanel h3{display:none}.mode-training #analysisSummary{display:none}.mode-training #analysisPanel{padding:8px}.mode-training #analysisPanel p{display:inline-block;margin:4px}.mode-training #quizPanel{max-width:none}.mode-training .card{max-width:1450px}.mode-training #quizGrid{grid-template-columns:repeat(3,minmax(0,1fr));align-items:center;gap:8px}.mode-training #quizGrid figure:first-child{grid-column:1;grid-row:1/3;width:100%}.quiz-choice{cursor:pointer;border:3px solid transparent}.quiz-choice.selected{border-color:#75469a}.quiz-choice.correct{border-color:#278044}.quiz-choice.wrong{border-color:#b54842}.quiz-choice:focus-visible{outline:3px solid #75469a}#quizFeedback table{border-collapse:collapse;margin:auto;width:100%;max-width:650px}#quizFeedback td,#quizFeedback th{padding:8px;border-bottom:1px solid #a9b9a5;text-align:left}#quizFeedback tr.best{background:#d0e7ce}#quizFeedback{margin:12px auto}#modeControls button[aria-pressed=true]{background:#426b4e}@media(max-width:700px){.mode-training #quizGrid{grid-template-columns:repeat(2,minmax(0,1fr))}.mode-training #quizGrid figure:first-child{grid-column:1/-1;grid-row:auto;width:65%}}
+
+body{background:radial-gradient(ellipse at top,#f0dfc0,#c6aa80);min-height:100vh;color:#244333}header{background:#203f32;border-bottom:3px solid #c9a56a;box-shadow:0 4px 14px #49351e33}header h1{color:#f3d49a;letter-spacing:5px}.card{background:#f4ead8;border:1px solid #d2b88e}.panel,#quizGrid figure{background:#ded3c1}.status{background:#e8ddc8}#quizGrid svg,#board{filter:drop-shadow(0 5px 5px #30271955)}#quizGrid figcaption{border-radius:7px;margin-bottom:5px;color:#294536}.result-best{background:#286443;color:white!important}.result-near{background:#f0d48a;color:#553b13!important}.result-bad{background:#a64440;color:white!important}.result-mid{background:#e9bc91;color:#603b20!important}.quiz-choice.correct{box-shadow:0 0 0 2px #c8a05a}.result-loss{display:block;font-size:clamp(14px,2vw,24px);font-weight:800}.effects{margin:12px auto;color:#f5e7cc;font-size:14px}.effects label{display:inline-block;margin:4px 10px}.confetti{position:fixed;z-index:100;pointer-events:none;width:9px;height:13px;border-radius:2px;animation:burst 1.15s ease-out forwards}@keyframes burst{from{transform:translate(0,0) rotate(0);opacity:1}to{transform:translate(var(--dx),var(--dy)) rotate(var(--rot));opacity:0}}@media(prefers-reduced-motion:reduce){.confetti{display:none}}
+header{position:relative}#openSettings{position:absolute;right:16px;top:12px;color:#f3d49a;background:transparent;font-size:28px;padding:4px 12px}#settings{position:fixed;inset:0 0 0 auto;margin:0;height:100%;max-height:100%;width:min(420px,95vw);max-width:95vw;box-sizing:border-box;background:#f4ead8;color:#244333;border:1px solid #c9a56a;padding:24px;overflow:auto;text-align:left;box-shadow:-8px 0 30px #30271955}#settings::backdrop{background:#203f3255}#settings h3{border-bottom:1px solid #c9a56a;padding-bottom:8px}#settings .effects{color:#244333}#closeSettings{float:right} .pip-info{font-size:clamp(11px,1.3vw,16px);font-weight:bold;padding:5px;text-align:center;color:#244333}.confetti{width:12px;height:17px;animation:burst 2.8s ease-out forwards;z-index:1000}.quiz-choice.correct.celebrate{animation:glow 1s ease-in-out 3}@keyframes glow{50%{box-shadow:0 0 18px 5px #4d9d65}}@media(prefers-reduced-motion:reduce){.quiz-choice.correct.celebrate{animation:none}} 
+#quizResponse{max-width:780px;margin:24px auto 0;padding:18px;border:1px solid #bca77e;border-radius:14px;background:#f1ead9;box-shadow:0 3px 10px #45382018}#quizResponse:has(#quizAnswer[hidden]){display:none}#quizFeedback{margin-top:16px;padding:12px;border:1px solid #bca77e;border-radius:10px;overflow-x:auto}#quizFeedback.result-ok{border-color:#39734e;background:#e4eddf}#quizFeedback.result-error{border-color:#a34b42;background:#f3e2d9}.move-arrows{pointer-events:none}.move-arrows[hidden]{display:none!important}
+
+/* Heritage: local system fonts, no network dependency */
+body{font-family:"Segoe UI",system-ui,sans-serif;line-height:1.45}button,select,input,output{font-family:inherit}header{padding:26px 56px 23px}header h1{font-family:Cinzel,Georgia,"Times New Roman",serif;font-weight:700;font-size:clamp(25px,4vw,44px);letter-spacing:.085em;text-shadow:0 2px 2px #142c23}header > p{font-size:14px;letter-spacing:.035em;color:#f4ead8}header:after{content:"";display:block;width:min(240px,65%);height:1px;margin:17px auto 0;background:linear-gradient(90deg,transparent,#c9a56a,transparent)}h2,h3{font-family:Georgia,"Times New Roman",serif;font-weight:700;letter-spacing:.015em}button,.file-button{font-weight:600;letter-spacing:.015em;box-shadow:0 2px 4px #30271922}button:disabled{box-shadow:none}#openSettings{box-shadow:none}#quizResponse{border-color:#c9a56a}#quizFeedback.result-ok,#quizFeedback.result-error{background:#f1ead9;border-color:#c9a56a}#quizFeedback.result-error h3{color:#a64440}#quizFeedback.result-ok h3{color:#286443}#quizFeedback td,#quizFeedback th{border-bottom-color:#bca77e}#quizFeedback td:nth-child(n+3),.result-loss,.pip-info{font-variant-numeric:tabular-nums}#quizFeedback tr.best{background:#d0e7ce}#quizGrid figcaption{font-weight:700}#quizAnswer legend{font-weight:600}#quizSelection{font-weight:600}
+
+/* 4.3.5: responsive training layout; original above equal answer choices */
+.mode-training #quizGrid{grid-template-columns:repeat(4,minmax(0,1fr));align-items:start;gap:12px}
+.mode-training #quizGrid figure{min-width:0;width:100%;margin:0;padding:6px}
+.mode-training #quizGrid figure:first-child{grid-column:1/-1;grid-row:auto;justify-self:center;width:32%;max-width:440px;margin:0 auto 8px;border:1px solid #c9a56a;background:#f1ead9}
+.mode-training #quizGrid figure:first-child figcaption{font-family:Georgia,serif;font-size:clamp(16px,2vw,22px)}
+@media(max-width:850px){
+ .mode-training #quizGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .mode-training #quizGrid figure:first-child{width:85%;max-width:440px}
+}
+@media(max-width:600px){
+ main{padding:12px 6px}
+ .mode-training .card{padding:6px}
+ .mode-training #analysisPanel,.mode-training #quizPanel{padding:4px}
+ .mode-training #quizGrid{gap:5px}
+ .mode-training #quizGrid figure{padding:3px}
+ .mode-training #quizGrid figure:first-child{width:100%}
+ .mode-training #quizResponse{padding:10px;margin-top:16px}
+ .mode-training #quizFeedback{padding:6px}
+ .mode-training #quizFeedback td,.mode-training #quizFeedback th{padding:5px;overflow-wrap:anywhere}
+}
 </style>
 </head>
 
 <body>
 <header>
-<h1>BERTIL</h1>
-<p>Din personliga backgammontränare</p>
-</header>
+<h1>BERTIL PRIME</h1>
+<p>Din personliga backgammontränare · Version 4.3.5</p>
+<button id="openSettings" aria-label="Inställningar" title="Inställningar">⚙</button><dialog id="settings"><button id="closeSettings" aria-label="Stäng">✕</button><h2>Inställningar</h2><h3>Spelinformation</h3><label>Pipräkning <select id="pipMode"><option value="off">Av</option><option value="origin">Ursprungsposition</option><option value="all">Samtliga bräden</option><option value="after">Efter svar</option></select></label><p><label><input type="checkbox" id="pipDiff"> Visa pipdifferens</label></p><p><label>Visa förflyttningspilar <select id="arrowMode"><option value="always">Alltid</option><option value="after">Efter bekräftat svar</option><option value="off">Aldrig</option></select></label></p><p><label><input type="checkbox" id="directionVisible" checked> Visa färdriktning på originalbrädet</label></p><p><label>Piltjocklek <input id="directionWidth" type="range" min="2" max="8" value="8"></label></p><p><label>Pilens opacitet <input id="directionOpacity" type="range" min="20" max="100" step="5" value="50"></label></p><h3>Ljud och effekter</h3><div class="effects"><label><input id="effectConfetti" type="checkbox" checked> Konfetti</label><label><input id="effectSound" type="checkbox" checked> Ljud</label><label><input id="effectVibration" type="checkbox" checked> Vibration</label></div><label>Volym <input id="volume" type="range" min="0" max="100" value="65"> <output id="volumeValue">65 %</output></label><p><button id="testSound">Testa rätt</button> <button id="testWrong">Testa fel</button> <button id="testConfetti">Testa konfetti</button> <button id="testVibration">Testa vibration</button></p><p id="effectStatus" aria-live="polite"></p><h3>Träningsinställningar</h3><p><label for="equityFilter">Minsta equityförlust: </label><select id="equityFilter"><option value="0">Alla analyserade drag</option><option value="0.02">0,020</option><option value="0.04">0,040</option><option value="0.08" selected>0,080</option><option value="0.16">0,160</option><option value="0.32">0,320</option></select></p><p id="settingsStatus" aria-live="polite"></p></dialog></header>
 
 <main>
 <div class="card">
@@ -71,7 +101,7 @@ select{padding:10px;border:1px solid #9aaf96;border-radius:8px;font-size:15px;ma
 </div>
 </div>
 
-<div id="status" class="status">
+<div id="modeControls" hidden><button id="modeAnalysis" aria-pressed="true">Analysläge</button><button id="modeTraining" aria-pressed="false">Träningsläge</button></div><div id="status" class="status">
 Välj en analyserad SGF-fil för att börja.
 </div>
 
@@ -79,8 +109,8 @@ Välj en analyserad SGF-fil för att börja.
 Ingen match inläst.
 </div>
 
-<div class="panel" id="analysisPanel" hidden><h3>Största equityförluster</h3><label for="analysisPlayer">Spelare: </label><select id="analysisPlayer"></select><p><label for="equityFilter">Minsta equityförlust: </label><select id="equityFilter"><option value="0">Alla analyserade drag</option><option value="0.02">0,020</option><option value="0.04">0,040</option><option value="0.08" selected>0,080</option><option value="0.16">0,160</option><option value="0.32">0,320</option></select></p><p id="analysisSummary"></p><div id="analysisList"></div><p id="analysisDetail" style="white-space:pre-line"></p></div>
-<svg id="board" viewBox="0 0 1141 1000"
+<div class="panel" id="analysisPanel" hidden><h3>Största equityförluster</h3><label for="analysisPlayer">Spelare: </label><select id="analysisPlayer"></select><p id="analysisSummary"></p><div id="analysisList"></div><p id="analysisDetail" style="white-space:pre-line"></p></div>
+<section id="quizPanel" class="panel" hidden><h3>Träningsfråga – test 4.3.5</h3><button id="quizStart">Skapa träningsfråga</button><button id="quizNext" hidden>Nästa fråga</button><p id="quizStatus"></p><p id="trainingStorage" class="small" aria-live="polite"></p><div id="quizGrid"></div><div id="quizResponse"><div id="quizAnswer" hidden><p id="quizSelection">Välj A–D genom att klicka på ett bräde.</p><fieldset style="border:0"><legend>Tror du att detta är bästa draget?</legend><label><input type="radio" name="confidence" value="Ja"> Ja</label> &nbsp; <label><input type="radio" name="confidence" value="Vet inte"> Vet inte</label> &nbsp; <label><input type="radio" name="confidence" value="Nej"> Nej</label></fieldset><button id="quizConfirm" disabled>Bekräfta svar</button></div><div id="quizFeedback" hidden aria-live="polite"></div></div></section><div id="replayArea"><svg id="board" viewBox="0 0 1260 1000"
 xmlns="http://www.w3.org/2000/svg"
 role="img" aria-label="Backgammonbräde">
 
@@ -105,8 +135,8 @@ flood-color="#14251b" flood-opacity=".35"/>
 </filter>
 </defs>
 
-<rect x="10" y="10" width="1121" height="980" rx="18" class="board-frame"/>
-<rect x="20" y="20" width="1101" height="960" rx="14"
+<rect x="10" y="10" width="1240" height="980" rx="18" class="board-frame"/>
+<rect x="20" y="20" width="1220" height="960" rx="14"
 fill="none" stroke="#d9b778" stroke-width="3"/>
 <rect x="45" y="75" width="1051" height="848.75" class="board-field"/>
 
@@ -114,7 +144,7 @@ fill="none" stroke="#d9b778" stroke-width="3"/>
 
 <rect x="530" y="75" width="80.833333" height="848.75" class="board-bar"/>
 
-<g id="checkers"></g>
+<g id="orientationLayer"></g><g id="checkers"></g>
 <g id="diceLayer" role="img" aria-label="Inget tärningskast"></g>
 </svg>
 
@@ -135,17 +165,17 @@ Orange = vit spelare i SGF-filen. Lila = svart spelare i SGF-filen.
 
 <p class="small">
 Testversion: matchläsning, positionskontroll och sparad motoranalys.
-Ingen automatisk quizgenerering ännu.
+Träning: svar, självskattning och facit. Resultat sparas lokalt.
 </p>
 
-</div>
+</div></div>
 </main>
 
 <script>
 "use strict";
 
 /* =====================================
-   BERTIL – SGF-TEST VERSION 2
+   BERTIL – VERSION 4.3.5
    ===================================== */
 
 const NS="http://www.w3.org/2000/svg";
@@ -186,7 +216,7 @@ function addPoint(number,row,index){
 
  points.appendChild(svgElement("polygon",{
   points:coordinates,
-  class:index%2===0?"point-orange":"point-purple"
+  class:number%2===0?"point-orange":"point-purple"
  }));
 
  const label=svgElement("text",{
@@ -336,6 +366,7 @@ function renderPosition(p){
 
  drawBar("orange",p.bar.W);
  drawBar("purple",p.bar.B);
+ drawOrientation(p);
 }
 
 /* =====================================
@@ -531,7 +562,7 @@ function initAnalysis(){
  const names=[...new Set(loadedGames.flatMap(g=>[g.whiteName,g.blackName]))];
  for(const name of names){const o=document.createElement("option");o.value=name;o.textContent=name;analysisPlayer.append(o);}
  const own=names.find(n=>/cool\s*block/i.test(n));if(own)analysisPlayer.value=own;
- analysisPanel.hidden=false;renderAnalysis();
+ analysisPanel.hidden=false;renderAnalysis();document.getElementById("quizPanel").hidden=false;clearQuiz();document.getElementById("modeControls").hidden=false;setMode(false);
 }
 function renderAnalysis(){
  analysisList.replaceChildren();analysisDetail.textContent="";
@@ -743,7 +774,7 @@ function showPosition(index){
 
  currentIndex=index;
 
- renderPosition(currentGame.positions[index]);
+ renderPosition(currentGame.positions[index]);updateReplayPips(currentGame.positions[index]);
  renderDice(index>0?currentGame.turns[index-1]:null);
 
  if(index===0){
@@ -812,7 +843,8 @@ function selectGame(index){
 }
 
 function resetInterface(){
- analysisPanel.hidden=true;analysisList.replaceChildren();analysisDetail.textContent="";
+ document.getElementById("modeControls").hidden=true;setMode(false);
+ document.getElementById("quizPanel").hidden=true;clearQuiz();analysisPanel.hidden=true;analysisList.replaceChildren();analysisDetail.textContent="";
 
  loadedGames=[];
  currentGame=null;
@@ -825,7 +857,7 @@ function resetInterface(){
  moveInfo.textContent="Startposition";
  positionCounter.textContent="Händelse 0 av 0";
 
- renderPosition(startingPosition());
+ renderPosition(startingPosition());updateReplayPips(startingPosition());
  renderDice(null);
  updateNavigation();
 }
@@ -915,6 +947,81 @@ lastButton.addEventListener("click",()=>{
    START
    ===================================== */
 
+
+const quizGrid=document.getElementById("quizGrid"),quizStatus=document.getElementById("quizStatus"),quizNext=document.getElementById("quizNext");
+let quizUsed=new Set(),quizSerial=0,activeQuiz=null,chosen=-1,answered=false;
+const answerBox=document.getElementById("quizAnswer"),feedback=document.getElementById("quizFeedback"),confirmButton=document.getElementById("quizConfirm"),selection=document.getElementById("quizSelection"),confidence=[...document.querySelectorAll('input[name="confidence"]')];
+function setMode(training){document.body.classList.toggle("mode-training",training);document.body.classList.toggle("mode-analysis",!training);document.getElementById("modeAnalysis").setAttribute("aria-pressed",String(!training));document.getElementById("modeTraining").setAttribute("aria-pressed",String(training));if(training&&!activeQuiz)createQuiz();}
+function resetAnswer(){activeQuiz=null;chosen=-1;answered=false;answerBox.hidden=true;feedback.hidden=true;feedback.replaceChildren();confidence.forEach(r=>{r.checked=false;r.disabled=false;});confirmButton.disabled=true;selection.textContent="Välj A–D genom att klicka på ett bräde.";}
+function updateConfirm(){confirmButton.disabled=answered||chosen<0||!confidence.some(r=>r.checked);}
+function choose(i){if(answered)return;chosen=i;[...quizGrid.querySelectorAll('.quiz-choice')].forEach((f,j)=>{f.classList.toggle('selected',j===i);f.setAttribute('aria-pressed',String(j===i));});selection.textContent='Valt alternativ: '+ 'ABCD'[i];updateConfirm();}
+confidence.forEach(r=>r.addEventListener('change',updateConfirm));
+confirmButton.addEventListener('click',()=>{if(!activeQuiz||confirmButton.disabled)return;answered=true;const {row,opts}=activeQuiz,best=row.t.analysis.alternatives[0].equity,loss=Math.max(0,best-opts[chosen].a.equity);const title=document.createElement('h3');title.textContent=loss<1e-8?'Rätt svar enligt GNU!':'Ditt val: '+ 'ABCD'[chosen]+' · Equityförlust '+loss.toFixed(4);const note=document.createElement('p');note.textContent='Din självskattning: '+confidence.find(r=>r.checked).value;const table=document.createElement('table');const head=table.createTHead().insertRow();['Val','Drag','Equity','Förlust'].forEach(v=>{const th=document.createElement('th');th.textContent=v;head.append(th);});const tbody=table.createTBody();opts.forEach((o,i)=>{const l=Math.max(0,best-o.a.equity),tr=tbody.insertRow();if(l<1e-8)tr.className='best';const move=decodeMove(row.t.dice.join('')+o.a.code).moves.map(m=>describeLocation(m.from)+'/'+describeLocation(m.to)).join(', ');['ABCD'[i]+(i===chosen?' (ditt val)':'')+(l<1e-8?' ✓':''),move,o.a.equity.toFixed(4),l.toFixed(4)].forEach(v=>tr.insertCell().textContent=v);const f=quizGrid.querySelectorAll('.quiz-choice')[i];f.classList.toggle('correct',l<1e-8);f.classList.toggle('wrong',i===chosen&&l>=1e-8);f.setAttribute('aria-disabled','true');const cap=f.querySelector('figcaption');cap.classList.add(l<1e-8?'result-best':l<.02?'result-near':l<.08?'result-mid':'result-bad');const value=document.createElement('span');value.className='result-loss';value.textContent='−'+l.toFixed(4);if(l<1e-8)value.textContent='0.0000 · Bäst';cap.append(value);if(i===chosen)cap.append(document.createTextNode(' · Ditt val'));});updatePips();recordTraining(row,opts,loss);playEffects(loss);feedback.classList.toggle("result-ok",loss<1e-8);feedback.classList.toggle("result-error",loss>=1e-8);updateArrows();feedback.append(title,note,table);feedback.hidden=false;confidence.forEach(r=>r.disabled=true);updateConfirm();quizNext.hidden=false;});
+document.getElementById('modeAnalysis').addEventListener('click',()=>setMode(false));document.getElementById('modeTraining').addEventListener('click',()=>setMode(true));
+function clearQuiz(){resetAnswer();quizUsed.clear();quizGrid.replaceChildren();quizStatus.textContent="";quizNext.hidden=true;}
+function shuffled(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function positionKey(p){return JSON.stringify([...["W","B"].map(c=>Array.from({length:24},(_,i)=>p[c][i+1]||0)),p.bar.W,p.bar.B,p.off.W,p.off.B]);}
+function quizCandidates(){const rows=[];loadedGames.forEach((g,gi)=>g.turns.forEach((t,i)=>{if(!t.analysis||t.type!=="move"||(t.player==="W"?g.whiteName:g.blackName)!==analysisPlayer.value)return;const threshold=Number(document.getElementById("equityFilter").value);if(t.analysis.loss+1e-10<threshold)return;const before=g.positions[i], seen=new Set(),opts=[];for(const a of t.analysis.alternatives){try{const d=decodeMove(t.dice.join("")+a.code);const pos=applyTurn(before,{player:t.player,moves:d.moves});const key=positionKey(pos);if(seen.has(key))continue;seen.add(key);opts.push({pos,a});}catch(e){if(a===t.analysis.alternatives[0])return;}}if(opts.length<4)return;rows.push({key:gi+":"+i,gi,i,t,before,opts:opts.slice(0,4)});}));return rows.sort((a,b)=>b.t.analysis.loss-a.t.analysis.loss);}
+function quizBoard(pos,turn,label){const original=document.getElementById("board"),oldCheckers=checkers.innerHTML,layer=document.getElementById("diceLayer"),oldDice=layer.innerHTML,oldOrientation=document.getElementById("orientationLayer").innerHTML,oldAria=layer.getAttribute("aria-label");let copy;try{renderPosition(pos);renderDice(turn);copy=original.cloneNode(true);}finally{checkers.innerHTML=oldCheckers;layer.innerHTML=oldDice;document.getElementById("orientationLayer").innerHTML=oldOrientation;layer.setAttribute("aria-label",oldAria);}const prefix="quiz"+(++quizSerial)+"-";const ids=new Map();[copy,...copy.querySelectorAll("[id]")].forEach(e=>{if(e.id){ids.set(e.id,prefix+e.id);e.id=prefix+e.id;}});copy.querySelectorAll("*").forEach(e=>{for(const a of [...e.attributes]){let v=a.value;for(const [old,n] of ids)v=v.replaceAll("url(#"+old+")","url(#"+n+")");if(v!==a.value)e.setAttribute(a.name,v);}});copy.querySelectorAll(".checker-orange").forEach(e=>e.style.fill="url(#"+prefix+"orangeMarble)");copy.querySelectorAll(".checker-purple").forEach(e=>e.style.fill="url(#"+prefix+"purpleMarble)");const f=document.createElement("figure"),caption=document.createElement("figcaption");caption.textContent=label;f.append(caption,copy);f.dataset.pips=JSON.stringify(pipCounts(pos));if(label==="Ursprungsposition")drawDirection(copy,turn.player);quizGrid.append(f);updatePips();}
+function createQuiz(){resetAnswer();quizGrid.replaceChildren();const rows=quizCandidates();let row=rows.find(r=>!quizUsed.has(r.key));if(!row&&rows.length){quizUsed.clear();row=rows[0];}if(!row){quizStatus.textContent="Ingen position med fyra olika sparade motoralternativ för valt filter. Prova ett lägre gränsvärde.";quizNext.hidden=true;return;}quizUsed.add(row.key);quizStatus.textContent=`Parti ${row.gi+1} · ${row.t.player==="W"?"Orange":"Lila"} spelar · ${row.t.dice.join("–")} · ${rows.length} möjliga frågor. Välj bästa position.`;quizBoard(row.before,row.t,"Ursprungsposition");const opts=shuffled(row.opts);activeQuiz={row,opts};opts.forEach((o,i)=>{quizBoard(o.pos,row.t,"ABCD"[i]);drawMoveArrows(quizGrid.lastElementChild,row.before,row.t.player,decodeMove(row.t.dice.join("")+o.a.code).moves);const f=quizGrid.lastElementChild;f.classList.add('quiz-choice');f.tabIndex=0;f.setAttribute('role','button');f.setAttribute('aria-label','Alternativ '+ 'ABCD'[i]);f.setAttribute('aria-pressed','false');f.addEventListener('click',()=>choose(i));f.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();choose(i);}});});answerBox.hidden=false;quizNext.hidden=true;}
+document.getElementById("quizStart").addEventListener("click",()=>{clearQuiz();createQuiz();});quizNext.addEventListener("click",createQuiz);function refreshQuiz(){clearQuiz();if(document.body.classList.contains('mode-training'))createQuiz();}analysisPlayer.addEventListener("change",refreshQuiz);document.getElementById("equityFilter").addEventListener("change",refreshQuiz);
+
+
+const storageKey='bertil.training.v1',settingsKey='bertil.effects.v1';
+const effectIds=['effectConfetti','effectSound','effectVibration'];
+function readLocal(key,fallback){try{return JSON.parse(localStorage.getItem(key))??fallback;}catch(e){return fallback;}}
+const savedEffects=readLocal(settingsKey,{}), settingIds=[...effectIds,'pipMode','pipDiff','arrowMode','directionVisible','directionWidth','directionOpacity','volume','equityFilter'];
+const el=id=>document.getElementById(id);
+function saveSettings(){try{localStorage.setItem(settingsKey,JSON.stringify(Object.fromEntries(settingIds.map(id=>[id,el(id).type==='checkbox'?el(id).checked:el(id).value]))));el('settingsStatus').textContent='Inställningarna sparas automatiskt.';}catch(e){el('settingsStatus').textContent='Inställningarna kunde inte sparas.';}}
+settingIds.forEach(id=>{const e=el(id),v=savedEffects[id];if(e.type==='checkbox'){if(typeof v==='boolean')e.checked=v;}else if(v!==undefined){e.value=v;if(e.tagName==='SELECT'&&!e.value)e.selectedIndex=0;}e.addEventListener('change',()=>{saveSettings();updatePips();updateReplayPips();updateArrows();});});
+el('volumeValue').textContent=el('volume').value+' %';el('volume').addEventListener('input',()=>{el('volumeValue').textContent=el('volume').value+' %';saveSettings();});
+el('openSettings').onclick=()=>el('settings').showModal();el('closeSettings').onclick=()=>el('settings').close();
+function pipCounts(p){return ['W','B'].map(c=>25*p.bar[c]+Object.entries(p[c]).reduce((sum,[n,k])=>sum+k*(c==='W'?Number(n):25-Number(n)),0));}
+function pipText(counts){const [w,b]=counts;return `Orange: ${w} · Lila: ${b}`+(el('pipDiff').checked?` · ${w===b?'Lika':(w<b?'Orange':'Lila')+' före med '+Math.abs(w-b)}`:'');}
+function svgText(g,x,y,value,color,size=30,cls=''){const t=svgElement('text',{x,y,fill:color,'font-size':size,'font-weight':'bold','text-anchor':'middle',class:cls});t.textContent=value;g.append(t);}
+function drawOrientation(p){const g=el('orientationLayer');g.replaceChildren();const colors=['#e7a26b','#cba5e5'];for(const [i,c] of ['W','B'].entries()){const y=i===0?530:75,col=colors[i];g.append(svgElement('rect',{x:1120,y,width:105,height:394,rx:9,fill:'#294639',stroke:col,'stroke-width':3}));g.append(svgElement('line',{x1:615,x2:1090,y1:i===0?965:35,y2:i===0?965:35,stroke:col,'stroke-width':7,'stroke-linecap':'round'}));svgText(g,1172,y+205,p.off[c]+'/15',col,26);svgText(g,1172,i===0?960:58,pipCounts(p)[i],col,35,'tray-pip');}svgText(g,1172,510,'','#f1d49a',25,'tray-diff');}
+function drawDirection(svg,player){const g=svgElement('g',{class:'direction-arrow','pointer-events':'none'}),col=player==='W'?'#e7a26b':'#cba5e5';g.setAttribute('fill',col);g.setAttribute('stroke',col);if(player==='B')g.setAttribute('transform','translate(0 1000) scale(1 -1)');g.append(svgElement('path',{d:'M 1020 465 H 230 C 100 465 100 535 230 535 H 1000',fill:'none','stroke-linecap':'round',class:'direction-shaft'}));g.append(svgElement('path',{d:'M 950 465 l 25 -22 M 950 465 l 25 22 M 972 465 l 25 -22 M 972 465 l 25 22 M 994 465 l 25 -22 M 994 465 l 25 22',fill:'none','stroke-width':7,'stroke-linecap':'round'}));g.append(svgElement('path',{d:'M 990 513 L 1040 535 L 990 557 L 1002 535 Z',stroke:'none'}));svg.append(g);}
+function setTrayPips(svg,counts,visible){svg.querySelectorAll('.tray-pip').forEach(t=>t.style.display=visible?'':'none');const d=svg.querySelector('.tray-diff');if(d){d.textContent=counts[0]===counts[1]?'±0':(counts[0]<counts[1]?'O ':'L ')+Math.abs(counts[0]-counts[1]);d.style.display=visible&&el('pipDiff').checked?'':'none';}}
+function updatePips(){const mode=el('pipMode').value;[...quizGrid.children].forEach((f,i)=>{const svg=f.querySelector('svg');setTrayPips(svg,JSON.parse(f.dataset.pips),mode==='all'||mode==='origin'&&i===0||mode==='after'&&answered);const g=svg.querySelector('.direction-arrow');if(g){g.style.display=el('directionVisible').checked?'':'none';g.setAttribute('opacity',Number(el('directionOpacity').value)/100);g.querySelector('.direction-shaft').setAttribute('stroke-width',Number(el('directionWidth').value)*2);}});}
+let replayPips=null;function updateReplayPips(pos){if(pos)replayPips=pipCounts(pos);if(replayPips)setTrayPips(el('board'),replayPips,['origin','all'].includes(el('pipMode').value));}
+function updateArrows(){const mode=el('arrowMode').value;quizGrid.querySelectorAll('.move-arrows').forEach(g=>{if(mode==='always'||mode==='after'&&answered)g.removeAttribute('hidden');else g.setAttribute('hidden','');});}
+function drawMoveArrows(figure,before,player,moves){
+ const svg=figure.querySelector('svg'),g=svgElement('g',{class:'move-arrows','aria-hidden':'true'}),p=clonePosition(before);
+ function coord(n,count){if(n==='bar')return {x:530+radius,y:player==='W'?topY+radius+Math.min(4,Math.max(0,count-1))*pointWidth:bottomY-radius-Math.min(4,Math.max(0,count-1))*pointWidth};if(n==='off')return {x:1172,y:player==='W'?735:280};const q=getPointPosition(n);return {x:q.x,y:(q.isTop?topY+radius:bottomY-radius)+(q.isTop?1:-1)*Math.min(4,Math.max(0,count-1))*pointWidth};}
+ // Track individual checkers using the same top-of-stack convention as the replay.
+ const stacks=new Map(), routes=[];
+ for(const n of [...Array.from({length:24},(_,i)=>i+1),'bar','off']){
+  const count=n==='bar'?p.bar[player]:n==='off'?p.off[player]:p[player][n]||0;
+  stacks.set(n,Array.from({length:count},()=>null));
+ }
+ for(const m of moves){
+  const from=stacks.get(m.from),to=stacks.get(m.to);
+  const a=coord(m.from,from.length),existing=from.pop();
+  const route=existing||[a];if(!existing)routes.push(route);
+  applyMove(p,player,m);to.push(route);route.push(coord(m.to,to.length));
+ }
+ // Preview width 2 on a 300-unit board, scaled to the native SVG width.
+ const width=2*1141/300, dot=width*.95;
+ for(const route of routes){
+  for(let i=1;i<route.length;i++){
+   const a=route[i-1],b=route[i],dx=b.x-a.x,dy=b.y-a.y,len=Math.hypot(dx,dy);if(len<.01)continue;
+   const ux=dx/len,uy=dy/len,last=i===route.length-1,head=Math.min(30,len*.38),half=12;
+   const end=last?{x:b.x-ux*head*.75,y:b.y-uy*head*.75}:b;
+   g.append(svgElement('line',{x1:a.x,y1:a.y,x2:end.x,y2:end.y,stroke:'#000000','stroke-width':width,'stroke-linecap':'round'}));
+   if(last){const bx=b.x-ux*head,by=b.y-uy*head;g.append(svgElement('path',{d:`M ${b.x} ${b.y} L ${bx-uy*half} ${by+ux*half} L ${bx+uy*half} ${by-ux*half} Z`,fill:'#000000'}));}
+  }
+  for(const a of route.slice(0,-1))g.append(svgElement('circle',{cx:a.x,cy:a.y,r:dot,fill:'#000000'}));
+ }
+
+ svg.append(g);updateArrows();
+}
+function questionId(row){return JSON.stringify([positionKey(row.before),row.t.player,row.t.dice,row.t.analysis.alternatives[0].code]);}
+function recordTraining(row,opts,loss){const status=document.getElementById('trainingStorage');try{const history=readLocal(storageKey,[]);history.push({questionId:questionId(row),date:new Date().toISOString(),player:analysisPlayer.value,game:row.gi+1,turn:row.i,selectedMove:opts[chosen].a.code,bestMove:row.t.analysis.alternatives[0].code,originalLoss:row.t.analysis.loss,loss,confidence:confidence.find(r=>r.checked).value});localStorage.setItem(storageKey,JSON.stringify(history));status.textContent='Sparat lokalt · '+history.length+' träningssvar';}catch(e){status.textContent='Svaret kunde inte sparas lokalt. Träningen kan fortsätta.';}}
+function burstConfetti(test=false){if(matchMedia('(prefers-reduced-motion: reduce)').matches)return false;const colors=['#d5a44f','#e89a61','#a78bd2','#39734e'];for(let i=0;i<110;i++){const e=document.createElement('i');e.className='confetti';const side=i%2;e.style.left=(side?innerWidth*.85:innerWidth*.15)+'px';e.style.top=innerHeight*.8+'px';e.style.background=colors[i%4];e.style.setProperty('--dx',((side?-1:1)*(40+Math.random()*innerWidth*.55))+'px');e.style.setProperty('--dy',(-80-Math.random()*innerHeight*.65)+'px');e.style.setProperty('--rot',(Math.random()*1400-700)+'deg');e.style.animationDelay=(Math.random()*.25)+'s';document.body.append(e);setTimeout(()=>e.remove(),3200);}return true;}
+async function sound(loss){const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return false;let ctx;try{ctx=new AC();await ctx.resume();const notes=loss<1e-8?[523.25,659.25,783.99,1046.5]:loss<.02?[440,523.25]:[330,261.63];const volume=Number(el('volume').value)/100;notes.forEach((hz,i)=>{const osc=ctx.createOscillator(),gain=ctx.createGain(),t=ctx.currentTime+i*.16;osc.type='triangle';osc.frequency.value=hz;gain.gain.setValueAtTime(0,t);gain.gain.linearRampToValueAtTime(.42*volume,t+.025);gain.gain.exponentialRampToValueAtTime(.0001,t+.32);osc.connect(gain);gain.connect(ctx.destination);osc.start(t);osc.stop(t+.34);});setTimeout(()=>ctx.close().catch(()=>{}),1200);return true;}catch(e){if(ctx)ctx.close().catch(()=>{});return false;}}
+function vibrate(pattern){try{return !!navigator.vibrate&&navigator.vibrate(pattern);}catch(e){return false;}}
+function playEffects(loss){if(loss<1e-8&&el('effectConfetti').checked){burstConfetti();quizGrid.querySelectorAll('.quiz-choice')[chosen]?.classList.add('celebrate');}if(el('effectVibration').checked){if(loss<1e-8)vibrate(70);else if(loss>=.08)vibrate([70,80,70]);}if(el('effectSound').checked)sound(loss);}
+el('testSound').onclick=async()=>{el('effectStatus').textContent=await sound(0)?'Testar segermelodin.':'Ljud kunde inte spelas.';};el('testWrong').onclick=async()=>{el('effectStatus').textContent=await sound(.1)?'Testar felljudet.':'Ljud kunde inte spelas.';};el('testConfetti').onclick=()=>{el('settings').close();burstConfetti(true);};el('testVibration').onclick=()=>{el('effectStatus').textContent=vibrate([70,80,70])?'Vibrationssignal skickad.':'Vibration stöds inte eller är blockerad.';};
 resetInterface();
 
 </script>
