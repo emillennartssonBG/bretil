@@ -56,7 +56,7 @@ select{padding:10px;border:1px solid #9aaf96;border-radius:8px;font-size:15px;ma
 <main>
 <div class="card">
 
-<h2>SGF-test – Matchläsning</h2>
+<h2>SGF-test – Matchläsning och analys</h2>
 <p>Nu ska vi se om Bertil kan tolka en riktig backgammonmatch.</p>
 
 <div class="panel">
@@ -79,6 +79,7 @@ Välj en analyserad SGF-fil för att börja.
 Ingen match inläst.
 </div>
 
+<div class="panel" id="analysisPanel" hidden><h3>Största equityförluster</h3><label for="analysisPlayer">Spelare: </label><select id="analysisPlayer"></select><p><label for="equityFilter">Minsta equityförlust: </label><select id="equityFilter"><option value="0">Alla analyserade drag</option><option value="0.02">0,020</option><option value="0.04">0,040</option><option value="0.08" selected>0,080</option><option value="0.16">0,160</option><option value="0.32">0,320</option></select></p><p id="analysisSummary"></p><div id="analysisList"></div><p id="analysisDetail" style="white-space:pre-line"></p></div>
 <svg id="board" viewBox="0 0 1141 1000"
 xmlns="http://www.w3.org/2000/svg"
 role="img" aria-label="Backgammonbräde">
@@ -114,6 +115,7 @@ fill="none" stroke="#d9b778" stroke-width="3"/>
 <rect x="530" y="75" width="80.833333" height="848.75" class="board-bar"/>
 
 <g id="checkers"></g>
+<g id="diceLayer" role="img" aria-label="Inget tärningskast"></g>
 </svg>
 
 <div class="panel">
@@ -132,7 +134,7 @@ Orange = vit spelare i SGF-filen. Lila = svart spelare i SGF-filen.
 </p>
 
 <p class="small">
-Testversion: matchläsning och positionskontroll.
+Testversion: matchläsning, positionskontroll och sparad motoranalys.
 Ingen automatisk quizgenerering ännu.
 </p>
 
@@ -509,6 +511,53 @@ function splitGames(text){
  });
 }
 
+function parseAnalysis(node){
+ const m=node.match(/(?:^|\])A\[(\d+)\]((?:\[[^\]]*\])+)/);
+ if(!m)return null;
+ const alternatives=Array.from(m[2].matchAll(/\[([^\]]*)\]/g), x=>{
+  const t=x[1].trim().split(/\s+/);
+  if(t[1]!=="E"||t[2]!=="ver"||t[3]!=="3"||!Number.isFinite(Number(t[9])))return null;
+  return {code:t[0],equity:Number(t[9]),win:Number(t[4])};
+ });
+ if(alternatives.some(x=>!x)||!alternatives.length||!alternatives[Number(m[1])])return null;
+ return {alternatives,played:Number(m[1]),loss:alternatives[0].equity-alternatives[Number(m[1])].equity};
+}
+const analysisPanel=document.getElementById("analysisPanel");
+const analysisPlayer=document.getElementById("analysisPlayer");
+const analysisList=document.getElementById("analysisList");
+const analysisDetail=document.getElementById("analysisDetail");
+function initAnalysis(){
+ analysisPlayer.replaceChildren();
+ const names=[...new Set(loadedGames.flatMap(g=>[g.whiteName,g.blackName]))];
+ for(const name of names){const o=document.createElement("option");o.value=name;o.textContent=name;analysisPlayer.append(o);}
+ const own=names.find(n=>/cool\s*block/i.test(n));if(own)analysisPlayer.value=own;
+ analysisPanel.hidden=false;renderAnalysis();
+}
+function renderAnalysis(){
+ analysisList.replaceChildren();analysisDetail.textContent="";
+ const rows=[];let total=0;
+ const threshold=Number(document.getElementById("equityFilter").value);
+ loadedGames.forEach((g,gi)=>g.turns.forEach((t,i)=>{
+ if((t.player==="W"?g.whiteName:g.blackName)!==analysisPlayer.value||!t.analysis)return;
+ total++;if(threshold===0||t.analysis.loss+1e-10>=threshold)rows.push({gi,i,t});
+ }));
+ rows.sort((a,b)=>b.t.analysis.loss-a.t.analysis.loss);
+ document.getElementById("analysisSummary").textContent=`${total} analyserade brickdrag. Visar ${rows.length} enligt valt filter. Endast sparad GNU-analys.`;
+ for(const r of rows){
+ const b=document.createElement("button");b.textContent=`Parti ${r.gi+1} · ${r.t.dice.join("–")} · ${r.t.analysis.loss.toFixed(4)}`;
+ b.addEventListener("click",()=>{
+ gameSelector.value=String(r.gi);selectGame(r.gi);showPosition(r.i);
+ const a=r.t.analysis;
+ const describe=c=>decodeMove(r.t.dice.join("")+c).moves.map(m=>`${describeLocation(m.from)}/${describeLocation(m.to)}`).join(", ")||"Inget drag";
+ analysisDetail.textContent=`Position före draget · ${r.t.dice.join("–")}\nSpelat: ${describe(a.alternatives[a.played].code)}\nMotorval: ${describe(a.alternatives[0].code)}\n`+a.alternatives.map((v,j)=>`${j===a.played?"Spelat · ":""}${describe(v.code)}: ${v.equity.toFixed(4)}`).join("\n");
+ moveInfo.textContent=`Före valt drag · kast ${r.t.dice.join("–")}`;
+ renderDice(r.t);
+ });analysisList.append(b);
+ }
+}
+analysisPlayer.addEventListener("change",renderAnalysis);
+document.getElementById("equityFilter").addEventListener("change",renderAnalysis);
+
 function parseGame(text,gameNumber){
 
  const headerEnd=text.search(/;[WB]\[/);
@@ -530,6 +579,8 @@ function parseGame(text,gameNumber){
 
   const player=match[1];
   const encoded=match[2];
+   const node=text.slice(regex.lastIndex, text.indexOf(";",regex.lastIndex)<0?text.length:text.indexOf(";",regex.lastIndex));
+   const analysis=parseAnalysis(node);
 
   const events=[
    "double","take","drop",
@@ -552,7 +603,7 @@ function parseGame(text,gameNumber){
     type:"move",
     encoded,
     dice:decoded.dice,
-    moves:decoded.moves
+    moves:decoded.moves,analysis
    });
   }catch(error){
    parseError=
@@ -667,6 +718,21 @@ function updateNavigation(){
  lastButton.disabled=!hasGame||currentIndex>=last;
 }
 
+function renderDice(turn){
+ const layer=document.getElementById("diceLayer");
+ layer.replaceChildren();
+ layer.setAttribute("aria-label","Inget tärningskast");
+ if(!turn || turn.type!=="move")return;
+ layer.setAttribute("aria-label","Tärningskast "+turn.dice.join(" och "));
+ const patterns={1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
+ const center=turn.player==="W"?853:287;
+ turn.dice.forEach((value,i)=>{
+  const x=center-78+i*84,y=464;
+  layer.appendChild(svgElement("rect",{x,y,width:72,height:72,rx:11,fill:"#fff8e9",stroke:"#806d50","stroke-width":2,filter:"url(#checkerShadow)"}));
+  for(const pip of patterns[value])layer.appendChild(svgElement("circle",{cx:x+17+(pip%3)*19,cy:y+17+Math.floor(pip/3)*19,r:5.7,fill:"#302b25"}));
+ });
+}
+
 function showPosition(index){
 
  if(!currentGame)return;
@@ -678,6 +744,7 @@ function showPosition(index){
  currentIndex=index;
 
  renderPosition(currentGame.positions[index]);
+ renderDice(index>0?currentGame.turns[index-1]:null);
 
  if(index===0){
   moveInfo.textContent="Startposition";
@@ -745,6 +812,7 @@ function selectGame(index){
 }
 
 function resetInterface(){
+ analysisPanel.hidden=true;analysisList.replaceChildren();analysisDetail.textContent="";
 
  loadedGames=[];
  currentGame=null;
@@ -758,6 +826,7 @@ function resetInterface(){
  positionCounter.textContent="Händelse 0 av 0";
 
  renderPosition(startingPosition());
+ renderDice(null);
  updateNavigation();
 }
 
@@ -805,6 +874,7 @@ fileInput.addEventListener("change",async event=>{
    loadedGames.length>1?"block":"none";
 
   selectGame(0);
+  initAnalysis();
 
  }catch(error){
   setStatus(
